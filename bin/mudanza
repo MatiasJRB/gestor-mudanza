@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+import argparse, json, sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
+from core import validate, property_status, conversation_status, cost_summary
+p = argparse.ArgumentParser(description='Read-only relocation tools for an external agent')
+p.add_argument('command', choices=['validate','status','costs'])
+p.add_argument('--input', type=Path, required=True)
+p.add_argument('--currency', default='ARS')
+a = p.parse_args()
+try:
+    data = validate(json.loads(a.input.read_text(encoding='utf-8')))
+    out = {'valid': True} if a.command == 'validate' else cost_summary(data.get('costs',[]),a.currency) if a.command == 'costs' else {'properties':[property_status(x) for x in data.get('properties',[])], 'conversations':[conversation_status(x) for x in data.get('conversations',[])]}
+    print(json.dumps(out, ensure_ascii=False, indent=2))
+except (ValueError, KeyError, OSError) as e:
+    print(json.dumps({'error':str(e)},ensure_ascii=False), file=sys.stderr)
+    sys.exit(1)

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "fictional": true,
+  "properties": [
+    {"id":"demo-house","bedrooms":2,"state":"visual_pending","evidence":[{"kind":"listing","source":"https://example.invalid/house","observed_at":"2026-01-01T12:00:00Z"}]},
+    {"id":"demo-flat","bedrooms":2,"state":"discarded","evidence":[]}
+  ],
+  "conversations": [
+    {"id":"demo-agency","conversation_url":"https://example.invalid/conversation","draft":"Hola! ¿Las fotos son actuales de esa unidad?","last_outgoing":null,"last_incoming":null,"review_at":null}
+  ],
+  "costs":[
+    {"id":"entry","amount":"100000","currency":"ARS","method":"cash","certainty":"example"},
+    {"id":"materials","amount":"30000","currency":"ARS","method":"card","certainty":"example"},
+    {"id":"transport","amount":null,"currency":"ARS","method":"unknown_method","certainty":"unknown"}
+  ]
+}

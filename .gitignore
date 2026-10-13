@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+.private/
+data/
+work/
+outputs/
+secrets/
+*.db
+*.sqlite*
+*.xlsx
+*.pdf
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
