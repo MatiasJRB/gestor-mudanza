@@ -43,3 +43,17 @@ si un archivo y un hilo son suficientes. La salida JSON real también es privada
 `missing_amounts`, `complete` y `solvency_assessment`. Todos los montos se devuelven
 como strings decimales. El resultado de la demo se regenera con
 `python3 scripts/build_demo.py`, sin servicios externos.
+
+## Runtime local v0.2
+
+La CLI también incluye `init`, `source-add`, `collect`, `decide`,
+`conversation-add`, `message-log`, `draft`, `wait`, `conversation-close`,
+`holidays`, `agent` y `export`. Cada comando tiene `--help`; todos los comandos
+operativos exigen `--workspace` fuera del checkout. Los tres comandos v1 anteriores
+con `--input` siguen disponibles.
+
+SQLite conserva preferencias, fuentes, propiedades, conversaciones y costos. Las
+mutaciones se ejecutan en transacciones y registran un evento. `agent` usa las
+fechas normalizadas y `holidays` para preparar la retoma, sin ejecutar acciones.
+El tablero de `agent --report` es una vista privada del estado, no una fuente nueva.
+Consultar [arranque completo](quickstart.md) y [adaptadores](sources.md).

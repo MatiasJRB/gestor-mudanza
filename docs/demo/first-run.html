@@ -1,0 +1,68 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>Mi mudanza · para mover hoy</title><style>:root{color-scheme:dark;background:#101c20;color:#eff5f2;font-family:system-ui}*{box-sizing:border-box}body{max-width:960px;margin:auto;padding:32px 22px}h1{font-family:Georgia,serif;font-size:clamp(36px,7vw,60px);font-weight:400}p,li{line-height:1.6;color:#b9ccc7}a{color:#91dfc7;overflow-wrap:anywhere}article{border-top:1px solid #3c5655;padding:20px 0}blockquote{margin:16px 0;padding:16px;background:#081317;white-space:pre-wrap}pre{overflow:auto;padding:16px;background:#081317}h2{margin-top:40px}:focus-visible{outline:2px solid #91dfc7}</style><h1>Primera búsqueda, desde cero</h1><p><strong>Recorrido ejecutado con datos ficticios.</strong> Instancia nueva, importación de fuente, decisión visual y conversaciones guardadas. Sin envíos. Esta copia no contiene una instancia real.</p><p>Agente local por reglas. No se envió ningún mensaje ni se asumió un compromiso.</p><article><h3>Agencia de ejemplo</h3><p>Borrador no enviado · No hay recibo de envío para este borrador</p><p>Revisar y aprobar el texto</p><blockquote>Hola! ¿Las fotos son actuales de esa unidad?</blockquote><a target="_blank" rel="noopener noreferrer" href="https://example.invalid/chat">Abrir conversación</a><p>Preparado, no enviado. Requiere aprobación.</p></article><article><h3>Flete de ejemplo</h3><p>Corresponde retomar · Sin respuesta desde 2026-01-01T12:00:00+00:00</p><p>Revisar y aprobar seguimiento</p><blockquote>Hola! ¿Pudiste ver mi consulta? Gracias!</blockquote><a target="_blank" rel="noopener noreferrer" href="https://example.invalid/flete">Abrir conversación</a><p>Preparado, no enviado. Requiere aprobación.</p></article><h2>Viviendas por revisar</h2><article><h3>Casa de ejemplo con patio</h3><p>2 dormitorios · Te interesa</p><p>100000 ARS · costo mensual incompleto</p><p>Disponibilidad sin confirmar · Fecha de publicación declarada, sin verificar</p><a target="_blank" rel="noopener noreferrer" href="https://example.invalid/homes/casa-demo">Ver publicación</a></article><h2>Cobertura de fuentes</h2><ul><li>catalogo: Importación de snapshot · 2026-10-13T17:38:13.173878+00:00</li></ul><details><summary>Resultado técnico</summary><pre>{
+  &quot;generated_at&quot;: &quot;2026-01-07T12:00:00Z&quot;,
+  &quot;mode&quot;: &quot;local_rules_no_llm&quot;,
+  &quot;for_today&quot;: [
+    {
+      &quot;id&quot;: &quot;agencia&quot;,
+      &quot;contact&quot;: &quot;Agencia de ejemplo&quot;,
+      &quot;state&quot;: &quot;borrador_no_enviado&quot;,
+      &quot;reason&quot;: &quot;No hay recibo de envío para este borrador&quot;,
+      &quot;next_step&quot;: &quot;Revisar y aprobar el texto&quot;,
+      &quot;draft&quot;: &quot;Hola! ¿Las fotos son actuales de esa unidad?&quot;,
+      &quot;conversation_url&quot;: &quot;https://example.invalid/chat&quot;,
+      &quot;rank&quot;: 1,
+      &quot;requires_approval&quot;: true
+    },
+    {
+      &quot;id&quot;: &quot;flete&quot;,
+      &quot;contact&quot;: &quot;Flete de ejemplo&quot;,
+      &quot;state&quot;: &quot;corresponde_retomar&quot;,
+      &quot;reason&quot;: &quot;Sin respuesta desde 2026-01-01T12:00:00+00:00&quot;,
+      &quot;next_step&quot;: &quot;Revisar y aprobar seguimiento&quot;,
+      &quot;draft&quot;: &quot;Hola! ¿Pudiste ver mi consulta? Gracias!&quot;,
+      &quot;conversation_url&quot;: &quot;https://example.invalid/flete&quot;,
+      &quot;rank&quot;: 2,
+      &quot;requires_approval&quot;: true
+    }
+  ],
+  &quot;other_pending&quot;: [],
+  &quot;candidates&quot;: [
+    {
+      &quot;id&quot;: &quot;p-17465f14bd86fe65&quot;,
+      &quot;title&quot;: &quot;Casa de ejemplo con patio&quot;,
+      &quot;url&quot;: &quot;https://example.invalid/homes/casa-demo&quot;,
+      &quot;bedrooms&quot;: 2,
+      &quot;state&quot;: &quot;interested&quot;,
+      &quot;availability&quot;: &quot;unconfirmed&quot;,
+      &quot;objective_fit&quot;: true,
+      &quot;price&quot;: &quot;100000&quot;,
+      &quot;currency&quot;: &quot;ARS&quot;,
+      &quot;images&quot;: [],
+      &quot;freshness&quot;: &quot;publication_date_recorded_not_verified&quot;
+    }
+  ],
+  &quot;sources&quot;: [
+    {
+      &quot;id&quot;: &quot;catalogo&quot;,
+      &quot;adapter&quot;: &quot;json&quot;,
+      &quot;last_checked&quot;: &quot;2026-10-13T17:38:13.173878+00:00&quot;,
+      &quot;check_mode&quot;: &quot;snapshot&quot;,
+      &quot;error&quot;: null,
+      &quot;last_changes&quot;: [
+        {
+          &quot;id&quot;: &quot;p-17465f14bd86fe65&quot;,
+          &quot;new&quot;: true
+        },
+        {
+          &quot;id&quot;: &quot;p-3df66af802c135b1&quot;,
+          &quot;new&quot;: true
+        }
+      ]
+    }
+  ],
+  &quot;guardrails&quot;: [
+    &quot;No messages, reservations, payments or calendar changes are executed&quot;,
+    &quot;A listing never confirms availability&quot;,
+    &quot;Human visual review before financial or visit analysis&quot;
+  ]
+}</pre></details></html>

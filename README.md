@@ -4,82 +4,84 @@
 
 **Volvé a tu búsqueda sin tener que recordar qué quedó pendiente.**
 
-Un núcleo local para que un agente organice viviendas, conversaciones y costos.
-Vos elegís qué te gusta, qué mensaje se envía y cuándo asumir un compromiso.
+Primera versión local operable: fuentes públicas configurables, viviendas y
+conversaciones persistentes, más un agente que prepara el “para mover hoy”.
+Vos decidís el gusto, los envíos, las visitas y el dinero. Licencia MIT.
 
-[Ver la demo ficticia](docs/demo/index.html) · [Cómo usarlo con un agente](docs/agent-interface.md) · [Privacidad](docs/privacy.md)
+[Empezar de cero](docs/quickstart.md) · [Agente incluido](skills/gestor-mudanza/SKILL.md) · [Fuentes](docs/sources.md) · [Verificación](docs/verification.md)
 
-> **Estado: experimental.** No hay servicio alojado ni
-> agente incluido. La demo muestra resultados del núcleo sobre datos inventados;
-> no consulta avisos ni manda mensajes.
+## El agente es la interfaz
 
-## Qué se siente usarlo
+Abrí el checkout en tu host de agentes y pedile:
 
-Le decís a tu agente:
+> «Usá la skill gestor-mudanza incluida. Creá mi búsqueda, preguntame ciudad y
+> criterios, registrá mis fuentes y dejame los mensajes pendientes juntos.
+> No envíes nada.»
 
-> «Retomemos la mudanza. Mostrame qué nos toca responder y qué plata falta
-> confirmar. Prepará los mensajes juntos, pero no envíes nada.»
+La skill incluida coordina las herramientas de este repo. **El modelo conversacional
+lo aporta tu host**; no viene un LLM ni una suscripción empaquetada. También podés
+usar `bin/mudanza agent` sin modelo: el coordinador por reglas prepara pendientes
+y tablero, pero no entiende conversación libre. No requiere claves ni dependencias.
 
-El agente consulta el archivo local y te devuelve una tanda con contexto,
-próximo paso y texto para revisar. Este proyecto aporta los estados y las cuentas;
-la conversación y las integraciones las pone el agente que uses.
+## Un recorrido real en un minuto
 
-| Tu pregunta | Lo que aporta el núcleo |
-| --- | --- |
-| ¿Esta vivienda está confirmada? | Separa aviso, confirmación de unidad y descarte. Hasta una confirmación debe revalidarse. |
-| ¿Ya mandamos ese mensaje? | Distingue borrador, envío con recibo y respuesta por revisar. |
-| ¿Cuánto necesito? | Separa efectivo, tarjeta, medio desconocido e importes faltantes por moneda. No evalúa solvencia. |
-
-## Probalo en un minuto
-
-Desde la carpeta del proyecto, con **Python 3.9 o posterior**. No instala paquetes,
-no pide cuenta ni usa red:
+Python 3.9+; desde la carpeta del proyecto:
 
 ```sh
-python3 bin/mudanza validate --input examples/demo.json
-python3 bin/mudanza status --input examples/demo.json
-python3 bin/mudanza costs --input examples/demo.json --currency ARS
+W="$HOME/.gestor-mudanza/primera-prueba"
+python3 bin/mudanza init --workspace "$W" --city 'Ciudad de ejemplo' --bedrooms 2
+python3 bin/mudanza source-add --workspace "$W" --id catalogo \
+  --adapter json --url 'https://example.invalid/feed'
+python3 bin/mudanza collect --workspace "$W" --source catalogo \
+  --snapshot examples/sources/listings.json
+python3 bin/mudanza conversation-add --workspace "$W" --id agencia \
+  --contact 'Agencia de ejemplo' --url 'https://example.invalid/chat' \
+  --draft 'Hola! ¿Las fotos son actuales de esa unidad?'
+python3 bin/mudanza agent --workspace "$W" --report
 ```
 
-En la muestra ficticia vas a encontrar:
+Este recorrido crea una instancia SQLite privada, importa dos avisos sintéticos,
+guarda un borrador y genera `board.html` en tu instancia. Abrí el `report_path`
+impreso. No son capturas ni un estado hardcodeado: los comandos operan sobre datos
+persistentes. La fixture no hace red ni contiene precios de mercado.
 
-- Una casa pendiente de tu filtro visual: su aviso no prueba disponibilidad.
-- Un departamento descartado: no vuelve al pool activo.
-- Un mensaje preparado: sigue sin enviarse.
-- ARS 100.000 en efectivo, ARS 30.000 en tarjeta y traslado sin importe.
+Para avisos reales reemplazá la fuente por una URL pública y ejecutá `collect`
+sin `--snapshot`. `agent --request buscar` revalida las fuentes registradas.
+[Cómo importar, decidir y retomar](docs/quickstart.md).
 
-Los importes son ejemplos, no precios de mercado. La suma está incompleta.
-Abrí `docs/demo/index.html` para ver esta misma salida en una portada legible.
+## Qué funciona hoy
 
-## Usalo con tu agente
+| Parte | Implementación |
+| --- | --- |
+| Fuentes | GET acotado de fichas HTML/OpenGraph/JSON-LD, RSS 2.0 y catálogos JSON; respeta robots, errores visibles y cooldown |
+| Evidencia | URL, fecha observada y publicación declarada; aviso siempre sin disponibilidad confirmada |
+| Persistencia | SQLite fuera del repo, transacciones y registro de cambios; no pisa una instancia existente |
+| Deduplicación | URL normalizada; conserva descartes y registra cambios de metadatos |
+| Seguimiento | Borradores, mensajes importados, recibos, espera acordada, cierres y retoma por días hábiles configurables |
+| Agente | Skill conversacional portable + coordinador local que prioriza una tanda y genera tablero privado oscuro |
+| Costos | Sumatoria JSON por moneda, separando efectivo/tarjeta/medio desconocido y faltantes; no solvencia |
 
-1. Mantené tu archivo real **fuera de este repositorio**. La estructura está en
-   `examples/demo.json` y en [la interfaz v1](docs/agent-interface.md).
-2. Dale a tu agente acceso acotado al archivo y a la CLI. Puede ser cualquier
-   runtime que lea archivos y ejecute Python; no requiere una marca o suscripción.
-3. Usá el [prompt de operación](docs/agent-interface.md#prompt-de-operación).
-   Pedile contexto, mensajes completos y accesos a los hilos en una sola tanda.
-4. Aprobá cada acción externa por destinatario y texto. El núcleo no envía.
-   Tu runtime debe verificar el recibo antes de registrar un envío.
+## Límites de esta versión
 
-No pegues contratos, chats o credenciales en un issue ni en la demo.
+No es un buscador universal: `page` revisa links registrados; RSS/JSON descubren
+avisos sólo dentro del feed configurado. No hay scrapers especiales de todos los
+portales ni fuentes preactivadas. Sitios privados/JavaScript pueden requerir
+importación manual. No se confunden hora de scrape y fecha de publicación.
 
-## Incluido y pendiente
+WhatsApp, Gmail y Calendar **no están conectados automáticamente**. La CLI registra
+intercambios aportados por la persona o un conector autorizado del host. Un silencio
+local puede ser falta de importación. Los templates deben revisarse con el hilo.
+No hay envío, reserva, pago, rescisión, scheduler, cuotas ni proyección financiera.
+Los feriados se configuran. El usuario confirma características y disponibilidad.
 
-**Funciona hoy:** CLI JSON de sólo lectura, estados por vivienda y conversación,
-sumas decimales por moneda/medio, fixture sintética y tests. Los comandos no
-modifican tu entrada ni llaman servicios externos.
+## Privacidad
 
-**No está implementado:** scrapers, conectores de WhatsApp/Gmail/Calendar/bancos,
-agente embebido, scheduler, cálculo de 48 horas hábiles, alertas, envío de mensajes,
-cuotas, proyección de ingresos, reserva ni cálculo legal de rescisión. El campo
-`review_at` se conserva; no dispara recordatorios. La demo no es un panel operativo.
+Instancia real fuera del checkout. El repositorio trae sólo código y ejemplos
+inventados. Los tableros, exports y registros de mensajes reales son privados.
+No subir contratos, credenciales o chats a issues/commits ni demos públicas.
+[Política y alcance](docs/privacy.md).
 
-El runtime tiene que leer ambos lados de cada conversación y obtener evidencia
-reciente. Una suma no demuestra que puedas mudarte. Tarjeta y descubierto no son
-ahorro. Asuntos legales y financieros necesitan la revisión correspondiente.
-
-## Desarrollo y verificación
+## Desarrollo
 
 ```sh
 python3 -m unittest discover -s tests -v
@@ -87,10 +89,7 @@ python3 scripts/build_demo.py
 python3 scripts/check_public_bundle.py
 ```
 
-`build_demo.py` regenera la demo desde la fixture y el núcleo. El último comando
-revisa el conjunto candidato a distribuir, incluidas rutas y patrones sensibles;
-no sustituye la revisión humana ni audita repositorios ajenos o archivos ignorados.
-
-[Reglas de privacidad](docs/privacy.md) · [Contrato de datos y salidas](docs/agent-interface.md)
-
-Licencia MIT. Sin asesoramiento jurídico, inmobiliario ni financiero.
+La demo estática original sigue en `docs/demo/index.html`; el tablero operativo
+se genera con `agent --report` sobre una instancia. El scanner es una revisión
+heurística del paquete, no una certificación de privacidad. Sin asesoramiento
+jurídico, inmobiliario ni financiero.

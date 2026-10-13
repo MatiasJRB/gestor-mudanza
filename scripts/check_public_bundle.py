@@ -4,11 +4,11 @@ import re
 import subprocess
 import sys
 ROOT = Path(__file__).resolve().parents[1]
-ALLOWED = {'.gitignore', 'LICENSE', 'README.md'}
-PREFIXES = ('bin/', 'src/', 'tests/', 'examples/', 'docs/', 'scripts/')
+ALLOWED = {'.gitignore', 'LICENSE', 'README.md', 'AGENTS.md'}
+PREFIXES = ('bin/', 'src/', 'tests/', 'examples/', 'docs/', 'scripts/', 'skills/')
 patterns = [r'/Users/', r'/var/folders/', r'(?:sk|ghp|github_pat)[-_][A-Za-z0-9_]{16,}',
             r'-----BEGIN (?:RSA |OPENSSH )?PRIVATE KEY', r'\b549\d{10}\b',
-            r'(?i)[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}',
+            r'(?i)[A-Z0-9._%+-]+@(?![A-Z0-9.-]*\.invalid\b)[A-Z0-9.-]+\.[A-Z]{2,}',
             r'(?i)mail-attachment.googleusercontent|whatsapp\.net|@lid']
 files = subprocess.check_output(['git', 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], cwd=ROOT).decode().split('\0')
 errors = []

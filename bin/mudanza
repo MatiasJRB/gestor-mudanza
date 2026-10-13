@@ -1,17 +1,143 @@
 #!/usr/bin/env python3
+"""Local relocation agent and tools. External communications are deliberately absent."""
 import argparse, json, sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
 from core import validate, property_status, conversation_status, cost_summary
-p = argparse.ArgumentParser(description='Read-only relocation tools for an external agent')
-p.add_argument('command', choices=['validate','status','costs'])
-p.add_argument('--input', type=Path, required=True)
-p.add_argument('--currency', default='ARS')
-a = p.parse_args()
+from workspace import Workspace, now
+from sources import canonical, fetch, parse_source, merge
+from agent import plan, instant
+from report import render
+
+p=argparse.ArgumentParser(description='Gestor de mudanza: agente local y fuentes públicas')
+s=p.add_subparsers(dest='command',required=True)
+for name in ('validate','status','costs'):
+ a=s.add_parser(name);a.add_argument('--input',type=Path,required=True);a.add_argument('--currency',default='ARS')
+a=s.add_parser('init');a.add_argument('--workspace',required=True);a.add_argument('--city',required=True);a.add_argument('--bedrooms',type=int,default=2);a.add_argument('--timezone',default='UTC')
+a=s.add_parser('source-add');a.add_argument('--workspace',required=True);a.add_argument('--id',required=True);a.add_argument('--adapter',choices=['page','rss','json'],required=True);a.add_argument('--url',required=True)
+a=s.add_parser('collect');a.add_argument('--workspace',required=True);a.add_argument('--source');a.add_argument('--snapshot',type=Path,help='Explicit offline fixture/export; not a live check')
+a=s.add_parser('decide');a.add_argument('--workspace',required=True);a.add_argument('--property',required=True);a.add_argument('--state',choices=['interested','discarded','closed','visual_pending'],required=True);a.add_argument('--bedrooms',type=int)
+a=s.add_parser('conversation-add');a.add_argument('--workspace',required=True);a.add_argument('--id',required=True);a.add_argument('--contact',required=True);a.add_argument('--url',required=True);a.add_argument('--draft')
+a=s.add_parser('message-log');a.add_argument('--workspace',required=True);a.add_argument('--conversation',required=True);a.add_argument('--direction',choices=['incoming','outgoing'],required=True);a.add_argument('--text',required=True);a.add_argument('--at',required=True);a.add_argument('--receipt');a.add_argument('--followup',action='store_true')
+a=s.add_parser('draft');a.add_argument('--workspace',required=True);a.add_argument('--conversation',required=True);a.add_argument('--text',required=True)
+a=s.add_parser('wait');a.add_argument('--workspace',required=True);a.add_argument('--conversation',required=True);a.add_argument('--until',required=True)
+a=s.add_parser('conversation-close');a.add_argument('--workspace',required=True);a.add_argument('--conversation',required=True);a.add_argument('--reason',required=True)
+a=s.add_parser('holidays');a.add_argument('--workspace',required=True);a.add_argument('--dates',nargs='*',default=[])
+a=s.add_parser('agent');a.add_argument('--workspace',required=True);a.add_argument('--request',default='retomar');a.add_argument('--at');a.add_argument('--refresh',action='store_true');a.add_argument('--report',action='store_true')
+a=s.add_parser('export');a.add_argument('--workspace',required=True)
+a=p.parse_args();w=None
+
+def find(data,key,identifier):
+ for obj in data[key]:
+  if obj['id']==identifier:return obj
+ raise ValueError('Unknown '+key+' id: '+identifier)
+
+def collect(w,source=None,snapshot=None):
+ results=[]
+ for item in w.read()['sources']:
+  if source and item['id']!=source:continue
+  timestamp=now()
+  try:
+   if snapshot:
+    if not source:raise ValueError('--snapshot requires an exact --source')
+    if snapshot.stat().st_size>1500000:raise ValueError('Snapshot exceeds size limit')
+    text=snapshot.read_text()
+   else:
+    if item.get('last_checked') and (instant(timestamp)-instant(item['last_checked'])).total_seconds()<3600:
+     results.append({'source':item['id'],'status':'cached_cooldown','seconds':3600});continue
+    text=fetch(item['url'])
+   rows=parse_source(item['adapter'],text,item['url'],timestamp)
+   if snapshot:
+    for row in rows:
+     for e in row['evidence']:e['kind']='imported_snapshot'
+   def apply(data):
+    source_item=find(data,'sources',item['id']);changes=merge(data,rows,item['id'])
+    source_item.update({'last_checked':timestamp,'error':None,'last_changes':changes,'check_mode':'snapshot' if snapshot else 'live_http'})
+    return {'source':item['id'],'status':'ok','records':len(rows),'changes':changes,'mode':source_item['check_mode']}
+   results.append(w.change('collect',apply))
+  except Exception as err:
+   # Fail visibly; never remove properties or infer availability from failure.
+   message=str(err)[:300]
+   def failed(data):
+    source_item=find(data,'sources',item['id']);source_item.update({'last_checked':timestamp,'error':message})
+    return {'source':item['id'],'status':'error','error':message}
+   results.append(w.change('source_failure',failed))
+ if source and not results:raise ValueError('Unknown source id')
+ return results
+
 try:
-    data = validate(json.loads(a.input.read_text(encoding='utf-8')))
-    out = {'valid': True} if a.command == 'validate' else cost_summary(data.get('costs',[]),a.currency) if a.command == 'costs' else {'properties':[property_status(x) for x in data.get('properties',[])], 'conversations':[conversation_status(x) for x in data.get('conversations',[])]}
-    print(json.dumps(out, ensure_ascii=False, indent=2))
-except (ValueError, KeyError, OSError) as e:
-    print(json.dumps({'error':str(e)},ensure_ascii=False), file=sys.stderr)
-    sys.exit(1)
+ if a.command in {'validate','status','costs'}:
+  data=validate(json.loads(a.input.read_text(encoding='utf-8')))
+  out={'valid':True} if a.command=='validate' else cost_summary(data.get('costs',[]),a.currency) if a.command=='costs' else {'properties':[property_status(x) for x in data.get('properties',[])],'conversations':[conversation_status(x) for x in data.get('conversations',[])]}
+ else:
+  if a.command=='init':
+   from zoneinfo import ZoneInfo
+   ZoneInfo(a.timezone)
+  w=Workspace(a.workspace,create=a.command=='init',city=getattr(a,'city',None),minimum_bedrooms=getattr(a,'bedrooms',2) or 0)
+  if a.command=='init':
+   from zoneinfo import ZoneInfo
+   ZoneInfo(a.timezone)
+   out=w.change('init',lambda d:(d['preferences'].update({'timezone':a.timezone}) or {'initialized':True,'workspace':str(w.path),'mode':'private_local'}))
+  elif a.command=='source-add':
+   url=canonical(a.url)
+   def add(d):
+    if any(x['id']==a.id for x in d['sources']):raise ValueError('Source id already exists')
+    d['sources'].append({'id':a.id,'adapter':a.adapter,'url':url});return {'registered':a.id,'fetch_performed':False}
+   out=w.change('source_add',add)
+  elif a.command=='collect':out=collect(w,a.source,a.snapshot)
+  elif a.command=='decide':
+   def decide(d):
+    obj=find(d,'properties',a.property)
+    if obj['state'] in {'discarded','closed'} and a.state not in {'discarded','closed'}:raise ValueError('Closed candidates cannot be reintroduced by this command')
+    obj['state']=a.state
+    if a.bedrooms is not None:
+     if a.bedrooms<0:raise ValueError('Bedrooms must be nonnegative')
+     obj['bedrooms']=a.bedrooms;obj['bedrooms_override']=a.bedrooms
+    return {'id':obj['id'],'state':obj['state']}
+   out=w.change('visual_decision',decide)
+  elif a.command=='conversation-add':
+   url=canonical(a.url)
+   def add(d):
+    if any(x['id']==a.id for x in d['conversations']):raise ValueError('Conversation id already exists')
+    d['conversations'].append({'id':a.id,'contact':a.contact,'conversation_url':url,'draft':a.draft,'messages':[],'followups':0})
+    return {'id':a.id,'state':'draft_not_sent' if a.draft else 'not_started'}
+   out=w.change('conversation_add',add)
+  elif a.command=='message-log':
+   timestamp=instant(a.at).isoformat()
+   if a.direction=='outgoing' and not a.receipt:raise ValueError('Logging a sent message requires --receipt; a draft is not a send')
+   def log(d):
+    c=find(d,'conversations',a.conversation)
+    msg={'at':timestamp,'text':a.text,'direction':a.direction,'receipt_id':a.receipt}
+    c['messages'].append(msg)
+    key='last_incoming' if a.direction=='incoming' else 'last_outgoing'
+    if not c.get(key) or instant(timestamp)>=instant(c[key]['at']):
+     c[key]=msg
+     if a.direction=='incoming':c['draft']=None
+     if a.direction=='outgoing':
+      c['draft']=None;c['wait_until']=None
+      if a.followup:c['followups']+=1
+    return {'id':c['id'],'recorded':a.direction,'external_send_performed':False}
+   out=w.change('message_log',log)
+  elif a.command in {'draft','wait','conversation-close'}:
+   def update(d):
+    c=find(d,'conversations',a.conversation)
+    if a.command=='draft':c['draft']=a.text
+    elif a.command=='wait':c['wait_until']=instant(a.until).isoformat()
+    else:c['closed_reason']=a.reason
+    return {'id':c['id'],'updated':a.command,'sent':False}
+   out=w.change(a.command,update)
+  elif a.command=='holidays':
+   from datetime import date
+   for x in a.dates:date.fromisoformat(x)
+   out=w.change('holidays',lambda d:(d['preferences'].update({'holidays':a.dates}) or {'holidays':a.dates}))
+  elif a.command=='agent':
+   if a.request.lower() not in {'retomar','resumen','seguimiento','buscar'}:raise ValueError('Local rule agent understands retomar, resumen, seguimiento, buscar. Use bundled skill for free conversation.')
+   if a.refresh or a.request.lower()=='buscar':collect(w)
+   out=plan(w.read(),a.at or now())
+   if a.report:out['report_path']=render(out,w.path/'board.html')
+  else:out=w.read()
+ print(json.dumps(out,ensure_ascii=False,indent=2))
+except (ValueError,KeyError,TypeError,OSError) as e:
+ print(json.dumps({'error':str(e)},ensure_ascii=False),file=sys.stderr);sys.exit(1)
+finally:
+ if w:w.close()
