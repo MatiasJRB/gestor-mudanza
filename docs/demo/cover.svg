@@ -6,6 +6,6 @@
 <text x="65" y="224" font-family="sans-serif" font-size="28" fill="#b9ccc7">Tu agente ordena la búsqueda.</text>
 <text x="65" y="264" font-family="sans-serif" font-size="28" fill="#b9ccc7">Vos decidís.</text>
 <path d="M65 332h630" stroke="#3c5655"/>
-<text x="65" y="382" font-family="sans-serif" font-size="22" fill="#76cbb0">Viviendas · Conversaciones · Costos</text>
+<text x="65" y="382" font-family="sans-serif" font-size="22" fill="#76cbb0">Buscar · Evaluar · Decidir · Tramitar · Mudarse</text>
 <text x="65" y="425" font-family="sans-serif" font-size="17" fill="#b9ccc7">Núcleo local experimental / Python / MIT</text>
 </svg>

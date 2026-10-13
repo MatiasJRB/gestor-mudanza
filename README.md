@@ -4,11 +4,15 @@
 
 **Volvé a tu búsqueda sin tener que recordar qué quedó pendiente.**
 
-Primera versión local operable: fuentes públicas configurables, viviendas y
-conversaciones persistentes, más un agente que prepara el “para mover hoy”.
-Vos decidís el gusto, los envíos, las visitas y el dinero. Licencia MIT.
+Un agente para acompañarte desde la búsqueda de vivienda hasta organizar el
+traslado: investigar, evaluar opciones, ordenar los números, preparar documentación
+y empujar lo pendiente sin hacerte reconstruir todo cada vez.
 
-[Empezar de cero](docs/quickstart.md) · [Agente incluido](skills/gestor-mudanza/SKILL.md) · [Fuentes](docs/sources.md) · [Verificación](docs/verification.md)
+Incluye herramientas locales, seguimiento persistente y agentes de apoyo legal y
+financiero; referencia al contador como herramienta externa. **Vos decidís el gusto,
+los envíos, las visitas y el dinero.** Licencia MIT.
+
+[Empezar de cero](docs/quickstart.md) · [Proceso completo](docs/process.md) · [Agentes y contador](docs/support.md) · [Fuentes](docs/sources.md) · [Verificación](docs/verification.md)
 
 ## El agente es la interfaz
 
@@ -22,6 +26,40 @@ La skill incluida coordina las herramientas de este repo. **El modelo conversaci
 lo aporta tu host**; no viene un LLM ni una suscripción empaquetada. También podés
 usar `bin/mudanza agent` sin modelo: el coordinador por reglas prepara pendientes
 y tablero, pero no entiende conversación libre. No requiere claves ni dependencias.
+
+## Del aviso a la mudanza
+
+| Momento | En qué te ayuda el agente |
+| --- | --- |
+| **Buscar** | Investigar fuentes, alertas y contactos; distinguir pistas recientes de catálogos viejos |
+| **Evaluar** | Mostrar fotos/características, conservar descartes y validar unidad exacta antes de una visita |
+| **Mantener el ritmo** | Reconciliar conversaciones primero; traer una tanda accionable, respetar esperas y descanso |
+| **Decidir** | Comparar vivienda actual/nueva, ubicación y logística; ordenar caja y escenarios sin comerse planes personales |
+| **Tramitar** | Revisar requisitos, ingresos/garantes y documentos; preparar consultas sobre contrato, reserva y salida |
+| **Mudarse** | Organizar pintura/reparaciones, inventario, cajas, fletes y entrega de la vivienda anterior |
+
+[El método completo](docs/process.md) detalla ese recorrido. No todas esas tareas
+son servicios automáticos: el host aporta investigación, lectura de documentos,
+agenda y razonamiento. La matriz de abajo dice qué está implementado y qué no.
+
+## Un gestor, tres apoyos
+
+No hace falta que coordines tres conversaciones. El gestor prepara lo necesario
+para cada especialidad y vuelve con una síntesis: qué sabemos, qué falta, opciones
+y próxima decisión.
+
+- **Contador referenciado:** [Monotributo Copilot AR](https://github.com/MatiasJRB/monotributo-copilot-ar)
+  para documentación fiscal/facturación. No se instala ni se conecta automáticamente.
+  Una factura no prueba que cobraste ni que una agencia acepte un garante.
+- **Apoyo legal incluido:** [skill](skills/apoyo-legal-mudanza/SKILL.md) para revisar
+  cláusulas con fuentes, riesgos y consultas. No es un abogado matriculado.
+- **Apoyo financiero incluido:** [skill](skills/apoyo-financiero-mudanza/SKILL.md)
+  para caja, financiación y escenarios con supuestos. No es un banco ni certifica
+  capacidad. El helper suma costos por vivienda nueva, vivienda actual y traslado.
+
+Las skills corren con el modelo de tu host. El comando `support` prepara paquetes
+mínimos y aritmética limitada; no lanza consultas de IA ni transmite datos.
+[Formato, límites y ejemplos](docs/support.md).
 
 ## Un recorrido real en un minuto
 
@@ -60,6 +98,20 @@ sin `--snapshot`. `agent --request buscar` revalida las fuentes registradas.
 | Seguimiento | Borradores, mensajes importados, recibos, espera acordada, cierres y retoma por días hábiles configurables |
 | Agente | Skill conversacional portable + coordinador local que prioriza una tanda y genera tablero privado oscuro |
 | Costos | Sumatoria JSON por moneda, separando efectivo/tarjeta/medio desconocido y faltantes; no solvencia |
+| Apoyos | Skills legal/financiera incluidas, referencia fiscal externa y paquetes mínimos de consulta; subtotales financieros por tres ejes |
+
+## Qué hace el host y qué queda pendiente
+
+| Capacidad del proceso | Estado real |
+| --- | --- |
+| Lectura de fuentes y seguimiento registrado | Implementados en CLI local |
+| Roles legal/financiero y método de mudanza | Skills incluidas, ejecutadas por el modelo del host |
+| Revisión fiscal | Repo externo referenciado; instalación/conexión aparte |
+| Búsqueda web amplia, fotos, PDFs, cotizaciones y red de contactos | Trabajo del agente con herramientas autorizadas del host; sin cobertura universal |
+| Rutina programada, resumen semanal y notificaciones | Método documentado; scheduler del host, no servicio incluido |
+| Agenda, mapas, notas/audio de visita | Depende del host y sus conectores; no integración automática |
+| Caja a seis meses, índices, cuotas y contrato | Análisis del agente con fuentes; helper local sólo calcula subtotales, no proyecta ni interpreta normas |
+| Expediente documental, checklist de salida e inventario integral | Método para el agente; no módulos persistentes especializados todavía |
 
 ## Límites de esta versión
 

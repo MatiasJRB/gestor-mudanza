@@ -1,10 +1,10 @@
-# Verificación v0.2
+# Verificación v0.3 · apoyos y proceso completo
 
 Revisión del 13 de octubre de 2026. Repositorio privado; ninguna web publicada.
 
 ## Evidencia ejecutada
 
-- **38 pruebas** pasando: CLI anterior, flujo completo de usuario nuevo, persistencia
+- **48 pruebas** pasando: CLI anterior, flujo completo de usuario nuevo, persistencia
   transaccional/rollback, cierres/recibos/esperas, zonas y feriados, adaptadores,
   robots, URLs privadas, escape de HTML, deduplicación y preservación de descartes.
 - `scripts/walkthrough.py` ejecuta init → registro de fuente → importación → decisión
@@ -38,3 +38,15 @@ python3 scripts/check_public_bundle.py
 
 Mantener instancias y resultados reales fuera del repo. Antes de hacer público,
 volver a revisar todo el diff y el historial, no sólo archivos ignorados.
+
+
+## Apoyos incluidos
+
+Skills legal y financiera presentes y referenciadas por el gestor. Contador externo
+referenciado, sin instalación ni llamadas automáticas. `support` probado para los
+tres roles: contexto mínimo, destinos explícitos y estado de pedido no revisado.
+Aritmética financiera por tres ejes, moneda única, mensual separado de entrada,
+fuentes para costos declarados confirmados y faltantes/estimados fuera de esos
+subtotales. Tests verifican que no se transmite información ni se decide solvencia.
+No se ejecutó una consulta profesional ni un modelo de IA: las skills dependen del
+host. La matriz README distingue método, herramientas locales y capacidades pendientes.

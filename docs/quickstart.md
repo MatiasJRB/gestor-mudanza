@@ -116,3 +116,25 @@ estado completo aún. Para respaldo restaurable cerrá los procesos y copiá la 
 privada. El núcleo de costos sigue aceptando JSON externo; no hay banco conectado,
 ni financiación ni evaluación de solvencia. El tablero real y los exports contienen
 información privada: no subir al repo, a issues ni a una preview pública.
+
+
+## Pedir apoyo sin gestionar otros chats
+
+En el mismo hilo del gestor:
+
+> «Quiero avanzar con esta vivienda. Revisá qué falta de documentación y pedile
+> apoyo legal y financiero a los roles incluidos. Devolveme todo junto: riesgos,
+> caja, supuestos y próximos pasos. No reserves ni envíes nada.»
+
+El host aplica las skills incluidas; no se inicia un modelo remoto por la CLI.
+Para verificar el formato sin datos privados:
+
+```sh
+python3 bin/mudanza support --role legal --input examples/support-legal.json
+python3 bin/mudanza support --role financial --input examples/support-financial.json
+python3 bin/mudanza support --role tax --input examples/support-tax.json
+```
+
+La salida es un pedido preparado, no una revisión concluida. En el ejemplo financiero
+hay ARS100.000 de entrada declarada en efectivo, ARS30.000 en tarjeta y un flete
+sin importe: no representa capacidad de pago. [Coordinación y privacidad](support.md).

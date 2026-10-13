@@ -57,3 +57,12 @@ mutaciones se ejecutan en transacciones y registran un evento. `agent` usa las
 fechas normalizadas y `holidays` para preparar la retoma, sin ejecutar acciones.
 El tablero de `agent --report` es una vista privada del estado, no una fuente nueva.
 Consultar [arranque completo](quickstart.md) y [adaptadores](sources.md).
+
+
+## Apoyos v0.3
+
+`support --role {legal,financial,tax} --input FILE` prepara pedidos acotados de
+consulta. No requiere workspace porque no guarda estado ni envía nada; la salida
+real debe conservarse fuera del checkout. Legal/financiero apuntan a skills
+incluidas; fiscal al repo externo referenciado. Ver `docs/support.md`. El gestor
+conserva la coordinación y concatena evidencia, supuestos y próximas decisiones.

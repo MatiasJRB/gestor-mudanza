@@ -8,11 +8,13 @@ from workspace import Workspace, now
 from sources import canonical, fetch, parse_source, merge
 from agent import plan, instant
 from report import render
+from support import prepare
 
 p=argparse.ArgumentParser(description='Gestor de mudanza: agente local y fuentes públicas')
 s=p.add_subparsers(dest='command',required=True)
 for name in ('validate','status','costs'):
  a=s.add_parser(name);a.add_argument('--input',type=Path,required=True);a.add_argument('--currency',default='ARS')
+a=s.add_parser('support');a.add_argument('--role',choices=['legal','financial','tax'],required=True);a.add_argument('--input',type=Path,required=True)
 a=s.add_parser('init');a.add_argument('--workspace',required=True);a.add_argument('--city',required=True);a.add_argument('--bedrooms',type=int,default=2);a.add_argument('--timezone',default='UTC')
 a=s.add_parser('source-add');a.add_argument('--workspace',required=True);a.add_argument('--id',required=True);a.add_argument('--adapter',choices=['page','rss','json'],required=True);a.add_argument('--url',required=True)
 a=s.add_parser('collect');a.add_argument('--workspace',required=True);a.add_argument('--source');a.add_argument('--snapshot',type=Path,help='Explicit offline fixture/export; not a live check')
@@ -66,7 +68,9 @@ def collect(w,source=None,snapshot=None):
  return results
 
 try:
- if a.command in {'validate','status','costs'}:
+ if a.command=='support':
+  out=prepare(a.role,json.loads(a.input.read_text(encoding='utf-8')))
+ elif a.command in {'validate','status','costs'}:
   data=validate(json.loads(a.input.read_text(encoding='utf-8')))
   out={'valid':True} if a.command=='validate' else cost_summary(data.get('costs',[]),a.currency) if a.command=='costs' else {'properties':[property_status(x) for x in data.get('properties',[])],'conversations':[conversation_status(x) for x in data.get('conversations',[])]}
  else:

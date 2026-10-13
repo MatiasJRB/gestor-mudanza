@@ -1,0 +1,14 @@
+{
+ "request":"Ordenar la caja de ingreso de este ejemplo, sin decidir si puedo mudarme.",
+ "context":{
+  "currency":"ARS",
+  "costs":[
+   {"id":"ingreso","axis":"new_home","timing":"entry","amount":"100000","currency":"ARS","method":"cash","certainty":"confirmed","source_id":"cotizacion-demo"},
+   {"id":"materiales","axis":"current_home","timing":"entry","amount":"30000","currency":"ARS","method":"card","certainty":"confirmed","source_id":"cotizacion-demo"},
+   {"id":"flete","axis":"moving","timing":"entry","amount":null,"currency":"ARS","method":"unknown_method","certainty":"unknown"}
+  ],
+  "coverage":"fixture ficticia; no hay saldos reales verificados",
+  "protected_reserves":[{"purpose":"plan personal de ejemplo","amount":null}]
+ },
+ "sources":[{"id":"cotizacion-demo","reference":"documento-ficticio-001","observed_at":"2026-01-05T12:00:00Z","certainty":"synthetic"}]
+}
