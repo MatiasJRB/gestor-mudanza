@@ -4,6 +4,9 @@
 
 **Volvé a tu búsqueda sin tener que recordar qué quedó pendiente.**
 
+Versión **v0.3 experimental**: herramientas locales y skills para tu host de agentes.
+No es un servicio alojado ni una inmobiliaria.
+
 Un agente para acompañarte desde la búsqueda de vivienda hasta organizar el
 traslado: investigar, evaluar opciones, ordenar los números, preparar documentación
 y empujar lo pendiente sin hacerte reconstruir todo cada vez.

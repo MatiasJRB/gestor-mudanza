@@ -1,6 +1,7 @@
 # Verificación v0.3 · apoyos y proceso completo
 
-Revisión del 13 de octubre de 2026. Repositorio privado; ninguna web publicada.
+Revisión actualizada el 17 de octubre de 2026 para la distribución v0.3 experimental.
+Esta entrega es un repositorio de código y skills; no despliega una web ni un servicio.
 
 ## Evidencia ejecutada
 
@@ -50,3 +51,16 @@ fuentes para costos declarados confirmados y faltantes/estimados fuera de esos
 subtotales. Tests verifican que no se transmite información ni se decide solvencia.
 No se ejecutó una consulta profesional ni un modelo de IA: las skills dependen del
 host. La matriz README distingue método, herramientas locales y capacidades pendientes.
+
+## Gate de distribución · 17/10/2026
+
+- Clon nuevo desde el repositorio remoto, sin depender del workspace del autor.
+- 48 pruebas pasando y recorrido sintético completo ejecutado: inicialización,
+  fuente, importación, decisiones, conversaciones, recibo ficticio y tablero.
+- Scanner del paquete: 36 archivos sin alertas. Escaneo del historial previo:
+  50 blobs únicos sin patrones sensibles detectados; revisados código, ejemplos,
+  skills, documentación y metadatos de commits. Sólo datos sintéticos en demos.
+- La revisión no certifica ausencia absoluta de secretos ni soporte universal.
+  No se probaron conectores privados, envíos, un LLM externo ni nuevos portales.
+- El recorrido escribe de nuevo la demo sintética y puede cambiar su fecha de
+  observación. No modifica una instancia personal ni necesita una cuenta externa.
