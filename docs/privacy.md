@@ -8,7 +8,10 @@ adicional, no una auditoría ni garantía. Antes de publicar, revisar TODOS los 
 versionados y todo el historial; un secreto borrado del último commit puede seguir
 accesible en commits anteriores. No incluir capturas privadas o HTML de una sesión.
 
-Los comandos incluidos no usan red, no envían ni modifican el archivo de entrada.
+Los comandos de análisis de JSON son locales y no modifican el archivo de entrada.
+La instancia operativa sí guarda cambios en su SQLite privado; `collect` y
+`agent --request buscar` pueden consultar las fuentes públicas registradas mediante
+GET. No envían mensajes, documentos ni datos de la instancia a esas fuentes.
 La salida de una consulta real puede contener datos privados. El usuario decide
 qué agente y qué conectores acceden a su instancia, con permisos acotados.
 
